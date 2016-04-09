@@ -189,15 +189,16 @@ public class RemoteCallCreator {
 			ok = facade.ping();
 		} catch (org.apache.axis.AxisFault e) {
 			currentException = e;
-
 			// pop open a browser to display server response
 			try{				
 				String html = getStackTrace(e);
-				int htmlStart = html.indexOf("faultDetail:");
+				int htmlStart = html.indexOf("AxisFault");
 				int htmlEnd = html.lastIndexOf("{http://xml.apache.org/axis/}");
 				html = html.substring(htmlStart,htmlEnd);
 				// super cheese unescaping of xml
-				final String finalhtml = html.replaceAll("&amp;","&").replaceAll("&lt;","<").replaceAll("&gt;",">");
+				final String finalhtml = "<pre>" + 
+					html.replaceAll("&amp;","&").replaceAll("&lt;","<").replaceAll("&gt;",">")
+					+ "</pre>";
 				
 				PlatformUI.getWorkbench().getDisplay().syncExec(
 						new Runnable(){

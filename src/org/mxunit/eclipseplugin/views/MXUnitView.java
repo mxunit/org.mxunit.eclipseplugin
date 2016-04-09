@@ -428,7 +428,8 @@ public class MXUnitView extends ViewPart{
 				//clearDetailsPanel();
 				for (int i = 0; i < items.length; i++) {
 					ITest testitem = (ITest) items[i].getData();
-					if (testitem.getTestElementType() != TestElementType.TESTMETHOD || ((TestMethod) testitem).getResult().trim().length()==0  ) {
+					if (testitem.getTestElementType() != TestElementType.TESTMETHOD || 
+							((TestMethod) testitem).getResult() != null && ((TestMethod) testitem).getResult().trim().length()==0  ) {
 						continue;
 					}
 					
@@ -692,6 +693,7 @@ public class MXUnitView extends ViewPart{
 		manager.add(runTestsAction);
 		manager.add(runFailuresOnlyAction);
 		manager.add(browserAction);
+		manager.add(openInEditorAction);
 		manager.add(selectAllAction);
 		//manager.add(spoofChangeModelAction);
 		manager.add(new Separator());

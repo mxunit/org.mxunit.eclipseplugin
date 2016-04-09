@@ -170,8 +170,7 @@ public class TestRunAction extends BaseRemoteAction {
         final TestMethod tm = (TestMethod) testItem;
         final String currentComponent = tm.getParent().getName();
         final String currentMethod = tm.getName();
-        view.writeToConsole("Running method " + currentMethod + "...");        
-        
+        view.writeToConsole("Running method " + currentMethod + "..." + '\n' + callCreator.getFacadeURL() + "&componentName=" + currentComponent + "&methodNames=" + currentMethod + "&testrunkey=asdfasdfasdf&method=EXECUTETESTCASE\n");        
         Map tmpresults;
         
         try {            
@@ -210,7 +209,7 @@ public class TestRunAction extends BaseRemoteAction {
             tm.setStatus(TestStatus.ERROR);
             tm.setResult(message);
             tm.setException(message);
-            view.writeToConsole("RemoteException: " + message);
+            view.writeToConsole("RemoteException: " + '\n' + callCreator.getFacadeURL() + "&componentName=" + currentComponent + "&methodNames=" + currentMethod + "&testrunkey=asdfasdfasdf&method=EXECUTETESTCASE\n" + message);
             MXUnitPluginLog.logError("RemoteException in RunTestsAction",e);
         }finally{
         	tm.setEndTime(System.currentTimeMillis());

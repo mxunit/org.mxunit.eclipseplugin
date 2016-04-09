@@ -5,7 +5,6 @@ import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.PlatformUI;
 
 /**
  * This class uses a web browser to display html
@@ -15,14 +14,11 @@ public class HTMLViewer {
    * Runs the application
    */
   public void display(String html) {
-    Display display = PlatformUI.getWorkbench().getDisplay();
-    
-    Shell shell = new Shell(display,SWT.APPLICATION_MODAL | SWT.CLOSE);
-    shell.setText("Server Response");
-    createContents(shell, html);
+    final Shell shell = new Shell(Display.getCurrent().getActiveShell(), SWT.SYSTEM_MODAL|SWT.CLOSE);
+    Browser browser = createContents(shell, html);
     shell.open();
-    shell.setFocus();
-    
+    shell.setActive();
+    browser.moveAbove(null);
   }
   
 
@@ -32,12 +28,13 @@ public class HTMLViewer {
    * @param shell the main window
  * @param html 
    */
-  private void createContents(Shell shell, String html) {
+  private Browser createContents(Shell shell, String html) {
     shell.setLayout(new FillLayout());
 
     // Create a web browser
     Browser browser = new Browser(shell, SWT.NONE);
     browser.setText(html);
+    return browser;
   }
 
 }

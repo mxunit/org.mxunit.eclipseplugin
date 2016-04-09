@@ -23,7 +23,7 @@ public class MXUnitPreferenceInitializer extends AbstractPreferenceInitializer {
 				.getPreferenceStore();
 		
 		store.setDefault(MXUnitPreferenceConstants.P_FACADEURL,
-				"http://localhost/mxunit/framework/RemoteFacade.cfc");
+				"http://127.0.0.1/mxunit/framework/RemoteFacade.cfc");
 		store.setDefault(MXUnitPreferenceConstants.P_MAX_HISTORY, 30);
 		store.setDefault(MXUnitPreferenceConstants.P_REMOTE_CALL_TIMEOUT, 30);
 		store.setDefault(MXUnitPreferenceConstants.P_COLOR_PASS, "95,191,95");
