@@ -178,28 +178,36 @@ public class TestRunAction extends BaseRemoteAction {
         	tmpresults = (Map) facade.executeTestCase(currentComponent, currentMethod, testRunKey);
             
             Map results = new CaseInsensitiveMap(tmpresults);
-            //printResults(results);
             Map parent = (Map) results.get(currentComponent);
             Map keys = (Map) parent.get(currentMethod);
-            if(keys.get("EXCEPTION")!=null){
-                tm.setException( (String) keys.get("EXCEPTION") + ": " + (String) keys.get("MESSAGE"));
+            if(keys == null) {
+            	String message = "Response format is incorrect, missing " + currentMethod + " information";
+                tm.setStatus(TestStatus.ERROR);
+                tm.setResult(message);
+                tm.setException(message);
+                view.writeToConsole(message);
+                view.writeToConsole(results.toString());
+            } else {
+            	if(keys.get("EXCEPTION")!=null){
+            		tm.setException( (String) keys.get("EXCEPTION") + ": " + (String) keys.get("MESSAGE"));
+            	}
+            	if(keys.get("TAGCONTEXT")!=null){       
+            		Object[] tagContextArray = (Object[]) keys.get("TAGCONTEXT");
+            		Map[] tagContextMap = new HashMap[tagContextArray.length];
+            		for (int i = 0; i < tagContextArray.length; i++) {
+            			Map trace = (Map) tagContextArray[i];
+            			formatTagContextMap(trace);
+            			tagContextMap[i] = trace;
+            		}
+            		tm.setTagcontext(tagContextMap);
+            	}
+            	tm.setResult((String) keys.get("MESSAGE"));
+            	tm.setOutput((String) keys.get("OUTPUT"));      
+            	tm.setActual((String) keys.get("ACTUAL"));
+            	tm.setExpected((String) keys.get("EXPECTED"));
+            	tm.setStatusFromString((String) keys.get("RESULT"));
+            	tm.setTotalServerTime( ((Number) keys.get("TIME")).longValue());
             }
-            if(keys.get("TAGCONTEXT")!=null){       
-                Object[] tagContextArray = (Object[]) keys.get("TAGCONTEXT");
-                Map[] tagContextMap = new HashMap[tagContextArray.length];
-                for (int i = 0; i < tagContextArray.length; i++) {
-                    Map trace = (Map) tagContextArray[i];
-                    formatTagContextMap(trace);
-                    tagContextMap[i] = trace;
-                }
-                tm.setTagcontext(tagContextMap);
-            }
-            tm.setResult((String) keys.get("MESSAGE"));
-            tm.setOutput((String) keys.get("OUTPUT"));      
-            tm.setActual((String) keys.get("ACTUAL"));
-            tm.setExpected((String) keys.get("EXPECTED"));
-            tm.setStatusFromString((String) keys.get("RESULT"));
-            tm.setTotalServerTime( ((Number) keys.get("TIME")).longValue());
             
         } catch (RemoteException e) {
         	String message = e.toString();
