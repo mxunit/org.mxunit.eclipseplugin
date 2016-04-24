@@ -71,6 +71,7 @@ import org.mxunit.eclipseplugin.actions.treeactions.FilterFailuresAction;
 import org.mxunit.eclipseplugin.actions.treeactions.HistoryDropdownAction;
 import org.mxunit.eclipseplugin.actions.treeactions.SelectAllInTreeAction;
 import org.mxunit.eclipseplugin.actions.treeactions.ToggleTreeItemsAction;
+import org.mxunit.eclipseplugin.actions.util.TreeHelper;
 import org.mxunit.eclipseplugin.model.FailureTrace;
 import org.mxunit.eclipseplugin.model.ITest;
 import org.mxunit.eclipseplugin.model.TestElementType;
@@ -100,6 +101,8 @@ public class MXUnitView extends ViewPart{
 	
 	private JUnitProgressBar progressBar;
 	private TestHistory history;
+	private TestListNameSorter sorter;
+	private TreeHelper treeHelper;
 
     private TestLoadAction loadMethodsAction;
 	private TestRunAction runTestsAction;
@@ -133,7 +136,7 @@ public class MXUnitView extends ViewPart{
 	    //initializeConsole();
 	    history = new TestHistory();
 	    history.setMaxEntries( MXUnitPlugin.getDefault().getPluginPreferences().getInt(MXUnitPreferenceConstants.P_MAX_HISTORY) );
-	   
+	    sorter = new TestListNameSorter();
     }
 	
 	/**
@@ -237,10 +240,14 @@ public class MXUnitView extends ViewPart{
 			public void propertyChange(PropertyChangeEvent event) {
 				if(event.getProperty().startsWith("color")){
 					setProgressBarColors();
+				} else if(event.getProperty().equals("testOrdering")){
+					boolean sortAlpha = MXUnitPlugin.getDefault().getPluginPreferences().getBoolean(MXUnitPreferenceConstants.P_TEST_ORDERING);
+					sorter.setSortMethodsAlphabetically(sortAlpha);
+					treeHelper.setSortMethodsAlphabetically(sortAlpha);
 				}
 			}
 		};
-		MXUnitPlugin.getDefault().getPreferenceStore().addPropertyChangeListener(listener );		
+		MXUnitPlugin.getDefault().getPreferenceStore().addPropertyChangeListener(listener);		
 	}
 
 	/**
@@ -320,9 +327,11 @@ public class MXUnitView extends ViewPart{
 		testsViewer = new TreeViewer(testsPanel, SWT.MULTI | SWT.H_SCROLL
 				| SWT.V_SCROLL);
 		// new DrillDownAdapter(testsViewer);
+		
+		sorter.setSortMethodsAlphabetically(MXUnitPlugin.getDefault().getPluginPreferences().getBoolean(MXUnitPreferenceConstants.P_TEST_ORDERING));
 		testsViewer.setContentProvider(new TestListContentProvider());
 		testsViewer.setLabelProvider(new TestListLabelProvider());
-		testsViewer.setSorter(new TestListNameSorter());
+		testsViewer.setSorter(sorter);
 		testsViewer
 				.addSelectionChangedListener(new ISelectionChangedListener() {
 					public void selectionChanged(SelectionChangedEvent event) {	
@@ -494,8 +503,10 @@ public class MXUnitView extends ViewPart{
 	 * 
 	 */
 	private void makeActions() {
-        
+		treeHelper = new TreeHelper(this.getTestsViewer());
+		treeHelper.setSortMethodsAlphabetically(MXUnitPlugin.getDefault().getPluginPreferences().getBoolean(MXUnitPreferenceConstants.P_TEST_ORDERING));
         loadMethodsAction = new TestLoadAction(this,false);
+        loadMethodsAction.setTreeHelper(treeHelper);
         loadMethodsAction.setText("Load Methods");
         loadMethodsAction.setToolTipText("Load methods for Test (F5)");
         loadMethodsAction.setImageDescriptor(
@@ -503,6 +514,7 @@ public class MXUnitView extends ViewPart{
         );        
         
 		runTestsAction = new TestRunAction(this);
+		runTestsAction.setTreeHelper(treeHelper);
 		runTestsAction.setText("Run");
 		runTestsAction.setToolTipText("Run selected Tests (Enter)");		
 		runTestsAction.setImageDescriptor(
@@ -510,6 +522,7 @@ public class MXUnitView extends ViewPart{
 		);
 		
 		runFailuresOnlyAction = new RunFailuresOnlyAction(this);
+		runFailuresOnlyAction.setTreeHelper(treeHelper);
 		runFailuresOnlyAction.setText("Run Failures Only");
 		runFailuresOnlyAction.setToolTipText("Run Failures Only (Ctrl-Enter)");
 		runFailuresOnlyAction.setImageDescriptor(
@@ -524,13 +537,14 @@ public class MXUnitView extends ViewPart{
 		        ResourceManager.getImageDescriptor(ResourceManager.EXPANDCOLLAPSEALL)
 		);
 
-		componentSearchAction = new ComponentSearchAction(this);
+		componentSearchAction = new ComponentSearchAction(this, loadMethodsAction);
 		componentSearchAction.setText("Search for Tests (Ctrl-F)");
 		componentSearchAction.setImageDescriptor(
 		        ResourceManager.getImageDescriptor(ResourceManager.FIND)
 		);
 		
 		browserAction = new BrowserAction(this);
+		browserAction.setTreeHelper(treeHelper);
 		browserAction.setText("Open test case results in browser (b or F8)");
 		browserAction.setImageDescriptor(
 		        ResourceManager.getImageDescriptor(ResourceManager.BROWSER)
@@ -575,9 +589,6 @@ public class MXUnitView extends ViewPart{
 				ResourceManager.getImageDescriptor(ResourceManager.TIMEOUT)
 		);
 		
-		
-		
-		
 		stopAction = new Action() {
             public void run() {
                stop();
@@ -599,8 +610,6 @@ public class MXUnitView extends ViewPart{
         helpAction.setImageDescriptor(
                 ResourceManager.getImageDescriptor(ResourceManager.HELP)
         );
-        
-        
 	}
 	
 	private void setHelpContextIDs(){
@@ -821,13 +830,27 @@ public class MXUnitView extends ViewPart{
 	}
 	
 	/**
-	 * make it easy to get the history objecxt
+	 * make it easy to get the history object
 	 * @return
 	 */
 	public TestHistory getTestHistory(){
 		return history;
 	}
-
+	
+	/**
+	 * make it easy for delegates to get a handle on the loadMethods action
+	 */
+	public TestLoadAction getTestLoadAction(){
+		return loadMethodsAction;
+	}
+	
+	/**
+	 * make it easy for delegates to get a handle on the runMethods action
+	 */
+	public TestRunAction getTestRunAction(){
+		return runTestsAction;
+	}
+	
 	/**
 	 * convenience for adding rows to the details table
 	 * 
