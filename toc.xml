@@ -68,12 +68,12 @@
 		</topic>
 	</topic>
 	<topic
-		href="http://wiki.mxunit.org/display/default/Eclipse+Plugin+Troubleshooting"
+		href="https://github.com/mxunit/org.mxunit.eclipseplugin/wiki/Eclipse+Plugin+Troubleshooting"
 		label="Troubleshooting (via MXUnit Wiki)">
 	</topic>
-	<topic href="http://wiki.mxunit.org/display/default/Eclipse+Plugin+FAQ"
+	<topic href="https://github.com/mxunit/org.mxunit.eclipseplugin/wiki/Eclipse+Plugin+FAQ"
 		label="Frequently Asked Questions (via MXUnit Wiki)">
 	</topic>
-	  <topic href="http://wiki.mxunit.org/display/default/Eclipse+Plugin+Tips+and+Tricks" label="Tips and Tricks (via MXUnit Wiki)">
+	  <topic href="https://github.com/mxunit/org.mxunit.eclipseplugin/wiki/Eclipse+Plugin+Tips+and+Tricks" label="Tips and Tricks (via MXUnit Wiki)">
   </topic>
 </toc>
